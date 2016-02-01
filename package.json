@@ -1,0 +1,19 @@
+{
+  "name": "async-compiler-runtime",
+  "version": "1.0.0",
+  "description": "Runtime library for async compiled javascript code",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "async",
+    "function",
+    "compiler"
+  ],
+  "author": "Stone Zhong <stonezhong@hotmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "jquery": "^2.2.0"
+  }
+}
