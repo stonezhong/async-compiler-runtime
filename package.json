@@ -1,6 +1,6 @@
 {
   "name": "async-compiler-runtime",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Runtime library for async compiled javascript code",
   "main": "index.js",
   "scripts": {

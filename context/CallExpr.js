@@ -13,7 +13,7 @@ var CallExpr = {
       executeArgs: CallExpr.executeArgs
     };
   },
-  executeArgs: function(controlContext, variables, success, fail) {
+  executeArgs: function(controlContext, options, success, fail) {
     var callCtx = this;
     if (callCtx.nextIndex >= callCtx.args.length) {
       success();
@@ -21,17 +21,17 @@ var CallExpr = {
     }
 
     var arg = callCtx.args[callCtx.nextIndex];
-    arg.execute(controlContext, variables, function() {
+    arg.execute(controlContext, options, function() {
       callCtx.nextIndex ++;
-      callCtx.executeArgs(controlContext, variables, success, fail);
+      callCtx.executeArgs(controlContext, options, success, fail);
     }, fail);
 
   },
 
-  execute: function(controlContext, variables, success, fail) {
+  execute: function(controlContext, options, success, fail) {
     var callCtx = this;
-    callCtx.func.execute(controlContext, variables, function() {
-      callCtx.executeArgs(controlContext, variables, function() {
+    callCtx.func.execute(controlContext, options, function() {
+      callCtx.executeArgs(controlContext, options, function() {
         var argValues = new Array(callCtx.args.length);
         for (var i = 0;  i < argValues.length; i ++) {
           argValues[i] = callCtx.args[i].value;

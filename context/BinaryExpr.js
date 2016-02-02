@@ -29,6 +29,30 @@ var BinaryExpr = {
             case "/":
               callCtx.value = callCtx.left.value / callCtx.right.value;
               break;
+            case ">":
+              callCtx.value = (callCtx.left.value > callCtx.right.value);
+              break;
+            case ">=":
+              callCtx.value = (callCtx.left.value >= callCtx.right.value);
+              break;
+            case "<":
+              callCtx.value = (callCtx.left.value < callCtx.right.value);
+              break;
+            case "<=":
+              callCtx.value = (callCtx.left.value <= callCtx.right.value);
+              break;
+            case "==":
+              callCtx.value = (callCtx.left.value == callCtx.right.value);
+              break;
+            case "!=":
+              callCtx.value = (callCtx.left.value != callCtx.right.value);
+              break;
+            case "===":
+              callCtx.value = (callCtx.left.value === callCtx.right.value);
+              break;
+            case "!==":
+              callCtx.value = (callCtx.left.value !== callCtx.right.value);
+              break;
             case "=":
               var address = callCtx.left.address;
               if (address.type === 'local' || address.type === 'argument') {

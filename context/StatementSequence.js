@@ -11,27 +11,32 @@ var StatementSequence = {
     };
   },
 
-  execute: function(controlContext, variables, success, fail) {
-    if (controlContext.shouldReturn) {
-      success();
-      return ;
-    }
+  execute: function(controlContext, options, success, fail) {
+    try {
+      if (controlContext.shouldReturn) {
+        success();
+        return ;
+      }
 
-    var callCtx = this;
-    var child = callCtx.children[callCtx.nextIndex];
-    child.execute(
-      controlContext,
-      variables,
-      function() {
-        callCtx.nextIndex ++;
-        if (callCtx.nextIndex >= callCtx.children.length) {
-          success();
-          return ;
-        }
-        callCtx.execute(controlContext, variables, success, fail);
-      },
-      fail
-    );
+      var callCtx = this;
+      var child = callCtx.children[callCtx.nextIndex];
+      child.execute(
+        controlContext,
+        options,
+        function() {
+          callCtx.nextIndex ++;
+          if (callCtx.nextIndex >= callCtx.children.length) {
+            success();
+            return ;
+          }
+          callCtx.execute(controlContext, options, success, fail);
+        },
+        fail
+      );
+    } catch (e) {
+      console.log(`StatementSequence.execute: ${e}`);
+      throw e;
+    }
   }
 };
 

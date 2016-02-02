@@ -21,6 +21,12 @@ var ContextBuilder = {
     if (node.type === 'dot') {
       return DotExpr.buildContext(node);
     }
+    if (node.type === 'block') {
+      return BlockStatement.buildContext(node);
+    }
+    if (node.type === 'if') {
+      return IfStatement.buildContext(node);
+    }
     throw "unrecognized node";
   }
 };
@@ -35,3 +41,5 @@ var BinaryExpr = require('./BinaryExpr');
 var CallExpr = require('./CallExpr');
 var SimpleStatement = require('./SimpleStatement');
 var DotExpr = require('./DotExpr');
+var BlockStatement = require('./BlockStatement');
+var IfStatement = require('./IfStatement');
