@@ -27,6 +27,12 @@ var ContextBuilder = {
     if (node.type === 'if') {
       return IfStatement.buildContext(node);
     }
+    if (node.type === 'for') {
+      return ForStatement.buildContext(node);
+    }
+    if (node.type === 'unary') {
+      return UnaryExpr.buildContext(node);
+    }
     throw "unrecognized node";
   }
 };
@@ -43,3 +49,5 @@ var SimpleStatement = require('./SimpleStatement');
 var DotExpr = require('./DotExpr');
 var BlockStatement = require('./BlockStatement');
 var IfStatement = require('./IfStatement');
+var ForStatement = require('./ForStatement');
+var UnaryExpr = require('./UnaryExpr');
