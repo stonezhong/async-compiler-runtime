@@ -22,6 +22,12 @@ function performObjectField(object, field, operator, isPost) {
       case "--":
         ret = -- object[field];
         break;
+      case "!":
+        ret = !object[field];
+        break;
+      case "~":
+        ret = ~object[field];
+        break;
       default:
         throw "unrecognized unary operator";
     }
@@ -30,15 +36,22 @@ function performObjectField(object, field, operator, isPost) {
   return ret;
 }
 
-function performValue(value, operator) {
+// based on value and operator, calculate it
+function calculateValue(value, operator) {
   var ret ;
 
   switch (operator) {
     case "++":
-      ret = value ++;
+      ret = ++ value;
       break;
     case "--":
-      ret = value --;
+      ret = -- value;
+      break;
+    case "!":
+      ret = !value;
+      break;
+    case "~":
+      ret = ~value;
       break;
     default:
       throw "unrecognized unary operator";
@@ -49,28 +62,35 @@ function performValue(value, operator) {
 var UnaryExpr = {
   buildContext: function(node) {
     return {
-      expr:   ContextBuilder.buildCallContext(node.expr),
-      operator: node.operator,
-      isPost: node.isPost,
-      execute: UnaryExpr.execute
+      execute: UnaryExpr.execute,
+      origin: node,
     };
   },
   execute: function(controlContext, options, success, fail) {
     try {
       var callCtx = this;
+      var exprCtx = ContextBuilder.buildCallContext(callCtx.origin.expr);
 
-      var options1 = Utility.copyObject(options);
-      options1.asAddress = true;
+      var newOptions = options;
+      if ((callCtx.origin.operator === "++") || (callCtx.origin.operator === "--")) {
+        newOptions = Utility.updateOptions(options, {asAddress: true});
+      }
 
-      callCtx.expr.execute(controlContext, options1, function() {
-        var address = callCtx.expr.address;
+      exprCtx.execute(controlContext, newOptions, function() {
+        if (!newOptions.asAddress) {
+          callCtx.value = calculateValue(exprCtx.value, callCtx.origin.operator);
+          success();
+          return ;
+        }
+
+        var address = exprCtx.address;
         var object;
         var field;
 
         if (address.type === 'local' || address.type === 'argument') {
           object = controlContext.variables;
           field = address.name;
-          callCtx.value = performObjectField(object, field, callCtx.operator, callCtx.isPost);
+          callCtx.value = performObjectField(object, field, callCtx.origin.operator, callCtx.origin.isPost);
           success();
           return ;
         }
@@ -78,7 +98,7 @@ var UnaryExpr = {
         if (address.type === 'field') {
           object = address.owner;
           field = address.field;
-          callCtx.value = performObjectField(object, field, callCtx.operator, callCtx.isPost);
+          callCtx.value = performObjectField(object, field, callCtx.origin.operator, callCtx.origin.isPost);
           success();
           return ;
         }
@@ -87,9 +107,9 @@ var UnaryExpr = {
           var setter = controlContext.accessors["set_" + address.name];
           var getter = controlContext.accessors["get_" + address.name];
           var value = getter()
-          var newValue = perform(value, callCtx.operator);
+          var newValue = calculateValue(value, callCtx.origin.operator);
           setter(newValue);
-          if (callCtx.isPost) {
+          if (callCtx.origin.isPost) {
             callCtx.value = value;
           } else {
             callCtx.value = newValue;

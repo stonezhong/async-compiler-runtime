@@ -1,34 +1,47 @@
 var StatementSequence = {
   buildContext: function(statements) {
-    var children = new Array(statements.length);
-    for (var i = 0; i < children.length; i ++) {
-      children[i] = ContextBuilder.buildCallContext(statements[i]);
-    }
     return {
-      children: children,
       nextIndex: 0,
-      execute: StatementSequence.execute
+      execute: StatementSequence.execute,
+      statements: statements,
     };
   },
 
   execute: function(controlContext, options, success, fail) {
     try {
-      if (controlContext.shouldReturn) {
+      var callCtx = this;
+      if (controlContext.hitReturn) {
+        throw "Still executing after return";
+      }
+      if ((controlContext.loopCount > 0) && (callCtx.hitBreak || callCtx.hitContinue)) {
+        throw "Still executing after continue or break is hit in a loop";
+      }
+
+      if (callCtx.nextIndex >= callCtx.statements.length) {
         success();
         return ;
       }
 
-      var callCtx = this;
-      var child = callCtx.children[callCtx.nextIndex];
-      child.execute(
+      // it is caller's responsible to not execute a statement when it is not necessary
+      // 1) when retrun statement is issued
+      // 2) when continue or break is issued in a loop
+      var childCtx = ContextBuilder.buildCallContext(callCtx.statements[callCtx.nextIndex]);
+      childCtx.execute(
         controlContext,
         options,
         function() {
-          callCtx.nextIndex ++;
-          if (callCtx.nextIndex >= callCtx.children.length) {
+          if (controlContext.hitReturn) {
             success();
             return ;
           }
+
+          if ((controlContext.loopCount > 0) && (childCtx.hitBreak || childCtx.hitContinue)) {
+            Utility.copyLoopStatus(callCtx, childCtx);
+            success();
+            return ;
+          }
+
+          callCtx.nextIndex ++;
           callCtx.execute(controlContext, options, success, fail);
         },
         fail
@@ -43,3 +56,4 @@ var StatementSequence = {
 module.exports = StatementSequence;
 
 var ContextBuilder = require('./ContextBuilder');
+var Utility = require('../utility');

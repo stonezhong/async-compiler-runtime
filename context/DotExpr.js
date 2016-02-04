@@ -4,23 +4,24 @@ var DotExpr = {
   buildContext: function(node) {
     return {
       origin: node,
-      ownerCtx: ContextBuilder.buildCallContext(node.owner),
-      fieldCtx: ContextBuilder.buildCallContext(node.field),
       execute: DotExpr.execute
     };
   },
   execute: function(controlContext, options, success, fail) {
     try {
       var callCtx = this;
+      var ownerCtx = ContextBuilder.buildCallContext(callCtx.origin.owner);
+      var fieldCtx;
+
       if (options.asAddress) {
-        var options1 = Utility.copyObject(options);
-        options1.asAddress = false;
-        callCtx.ownerCtx.execute(controlContext, options1, function() {
-          callCtx.fieldCtx.execute(controlContext, options1, function() {
+        var options1 = Utility.updateOptions(options, {asAddress: false});
+        ownerCtx.execute(controlContext, options1, function() {
+          fieldCtx = ContextBuilder.buildCallContext(callCtx.origin.field);
+          fieldCtx.execute(controlContext, options1, function() {
             callCtx.address = {
               type: 'field',
-              owner: callCtx.ownerCtx.value,
-              field: callCtx.fieldCtx.value
+              owner: ownerCtx.value,
+              field: fieldCtx.value
             }
             success();
             return ;
@@ -29,10 +30,11 @@ var DotExpr = {
         return ;
       }
 
-      callCtx.ownerCtx.execute(controlContext, options, function() {
-        callCtx.fieldCtx.execute(controlContext, options, function() {
-          callCtx.owner = callCtx.ownerCtx.value,
-          callCtx.value = callCtx.ownerCtx.value[callCtx.fieldCtx.value];
+      ownerCtx.execute(controlContext, options, function() {
+        fieldCtx = ContextBuilder.buildCallContext(callCtx.origin.field);
+        fieldCtx.execute(controlContext, options, function() {
+          callCtx.owner = ownerCtx.value,
+          callCtx.value = ownerCtx.value[fieldCtx.value];
           success();
           return ;
         }, fail)

@@ -1,8 +1,8 @@
-var ForStatement = {
+var WhileStatement = {
   buildContext: function(statement) {
     return {
-      execute: ForStatement.execute,
-      executeLoop: ForStatement.executeLoop,
+      execute: WhileStatement.execute,
+      executeLoop: WhileStatement.executeLoop,
       origin: statement,
     };
   },
@@ -28,14 +28,12 @@ var ForStatement = {
             success();
             return ;
           }
-          var stepCtx = ContextBuilder.buildCallContext(callCtx.origin.step);
-          stepCtx.execute(controlContext, options, function() {
-            callCtx.executeLoop(controlContext, options, success, fail);
-          }, fail);
+
+          callCtx.executeLoop(controlContext, options, success, fail);
         }, fail);
       }, fail);
     } catch (e) {
-      console.log(`ForStatement.execute<InLoop>: ${e}`);
+      console.log(`WhileStatement.execute<InLoop>: ${e}`);
       throw e;
     }
   },
@@ -43,19 +41,15 @@ var ForStatement = {
   execute: function(controlContext, options, success, fail) {
     try {
       var callCtx = this;
-      var initCtx = ContextBuilder.buildCallContext(callCtx.origin.init);
-
-      initCtx.execute(controlContext, options, function() {
-        controlContext.loopCount ++;
-        callCtx.executeLoop(controlContext, options, success, fail);
-      }, fail);
+      controlContext.loopCount ++;
+      callCtx.executeLoop(controlContext, options, success, fail);
     } catch (e) {
-      console.log(`ForStatement.execute: ${e}`);
+      console.log(`WhileStatement.execute: ${e}`);
       throw e;
     }
   }
 };
 
-module.exports = ForStatement;
+module.exports = WhileStatement;
 
 var ContextBuilder = require('./ContextBuilder');

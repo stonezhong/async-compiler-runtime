@@ -7,8 +7,9 @@ var AsyncTool = {
   eval: function(variables, accessors, statements) {
     var nodeContext = StatementSequenceCtx.buildContext(statements);
     var controlContext = {
-      shouldReturn: false,
+      hitReturn: false,
       returnValue: undefined,
+      loopCount: 0,
       variables: variables,
       accessors: accessors,     // for external variable
     };

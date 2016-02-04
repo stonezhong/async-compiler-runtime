@@ -12,7 +12,7 @@ var ReturnStatement = {
         controlContext,
         options,
         function() {
-          controlContext.shouldReturn = true;
+          controlContext.hitReturn = true;
           controlContext.returnValue = valueCtx.value;
           success();
         } ,

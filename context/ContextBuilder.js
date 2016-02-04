@@ -33,6 +33,15 @@ var ContextBuilder = {
     if (node.type === 'unary') {
       return UnaryExpr.buildContext(node);
     }
+    if (node.type === 'while') {
+      return WhileStatement.buildContext(node);
+    }
+    if (node.type === 'continue') {
+      return ContinueStatement.buildContext(node);
+    }
+    if (node.type === 'break') {
+      return BreakStatement.buildContext(node);
+    }
     throw "unrecognized node";
   }
 };
@@ -51,3 +60,6 @@ var BlockStatement = require('./BlockStatement');
 var IfStatement = require('./IfStatement');
 var ForStatement = require('./ForStatement');
 var UnaryExpr = require('./UnaryExpr');
+var WhileStatement = require('./WhileStatement');
+var ContinueStatement = require('./ContinueStatement');
+var BreakStatement = require('./BreakStatement');

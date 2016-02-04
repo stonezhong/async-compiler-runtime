@@ -42,6 +42,9 @@ var RefExpr = {
       success();
     } catch (e) {
       console.log(`RefExpr.execute: ${e}`);
+      // if (e.stack) {
+      //   console.log(e.stack);
+      // }
       throw e;
     }
   }
