@@ -18,4 +18,7 @@ describe('Test Async Compiler Runtime Library', function() {
   it('RefExpr', function() {
     runTest('RefExpr');
   });
+  it('ForStatement', function() {
+    runTest('ForStatement');
+  });
 });

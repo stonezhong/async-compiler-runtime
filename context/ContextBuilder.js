@@ -45,6 +45,9 @@ var ContextBuilder = {
     if (node.type === 'do') {
       return DoStatement.buildContext(node);
     }
+    if (node.type === 'seq') {
+      return SeqExpr.buildContext(node);
+    }
     throw "unrecognized node";
   }
 };
@@ -67,3 +70,4 @@ var WhileStatement = require('./WhileStatement');
 var ContinueStatement = require('./ContinueStatement');
 var BreakStatement = require('./BreakStatement');
 var DoStatement = require('./DoStatement');
+var SeqExpr = require('./SeqExpr');
