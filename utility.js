@@ -21,6 +21,16 @@ var Utility = {
     }
   },
 
+  isPromise(value) {
+    return (typeof(value) === 'object' &&
+        typeof(value.then) === 'function' &&
+        typeof(value.catch) === 'function');
+  },
+
+  invokeCallback(callback) {
+    Promise.resolve().then(callback);
+  },
+
 };
 
 module.exports = Utility;

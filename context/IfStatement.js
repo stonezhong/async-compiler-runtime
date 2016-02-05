@@ -21,7 +21,7 @@ var IfStatement = {
           if (!controlContext.hitReturn && (controlContext.loopCount > 0)) {
             Utility.copyLoopStatus(callCtx, branchContext);
           }
-          success();
+          Utility.invokeCallback(success);
         }, fail);
       }, fail);
     } catch (e) {

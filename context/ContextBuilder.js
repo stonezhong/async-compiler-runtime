@@ -42,6 +42,9 @@ var ContextBuilder = {
     if (node.type === 'break') {
       return BreakStatement.buildContext(node);
     }
+    if (node.type === 'do') {
+      return DoStatement.buildContext(node);
+    }
     throw "unrecognized node";
   }
 };
@@ -63,3 +66,4 @@ var UnaryExpr = require('./UnaryExpr');
 var WhileStatement = require('./WhileStatement');
 var ContinueStatement = require('./ContinueStatement');
 var BreakStatement = require('./BreakStatement');
+var DoStatement = require('./DoStatement');

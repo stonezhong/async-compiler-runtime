@@ -17,7 +17,7 @@ var VarStatement = {
     try {
       var callCtx = this;
       if (callCtx.nextSegmentIndex >= callCtx.children.length) {
-        success();
+        Utility.invokeCallback(success);
         return ;
       }
 
@@ -54,7 +54,7 @@ var VarStatementSegment = {
         options,
         function() {
           controlContext.variables[callCtx.name] = callCtx.expr.value;
-          success();
+          Utility.invokeCallback(success);
         },
         fail
       );
@@ -66,3 +66,4 @@ var VarStatementSegment = {
 }
 
 module.exports = VarStatement;
+var Utility = require('../utility');

@@ -1,10 +1,10 @@
 {
   "name": "async-compiler-runtime",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Runtime library for async compiled javascript code",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,11 @@
   ],
   "author": "Stone Zhong <stonezhong@hotmail.com>",
   "license": "MIT",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
+    "async-compiler": "^1.0.10",
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5",
+    "shelljs": "^0.5.3"
   }
 }

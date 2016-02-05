@@ -17,29 +17,39 @@ var RefExpr = {
       var callCtx = this;
 
       if (options.asAddress) {
-        this.address = {
-          type: this.origin.refType,
-          name: this.origin.name
+        callCtx.address = {
+          type: callCtx.origin.refType,
+          name: callCtx.origin.name
         }
-        success();
+        Utility.invokeCallback(success);
         return ;
       }
 
-      if (this.origin.refType === 'literal') {
-        this.value = this.origin.literal;
-        success();
+      if (callCtx.origin.refType === 'literal') {
+        callCtx.value = callCtx.origin.literal;
+        Utility.invokeCallback(success);
         return ;
       }
 
-      if (this.origin.refType === 'external') {
-        var getter = controlContext.accessors["get_" + this.origin.name];
-        this.value = getter();
-        success();
+      if (callCtx.origin.refType === 'external') {
+        var getter = controlContext.accessors["get_" + callCtx.origin.name];
+        var value = getter();
+        if (Utility.isPromise(value)) {
+          value.then(function(resolvedValue) {
+            callCtx.value = resolvedValue;
+            Utility.invokeCallback(success);
+          }, fail);
+          return ;
+        }
+        callCtx.value = value;
+        Utility.invokeCallback(success);
         return ;
       }
 
-      this.value = controlContext.variables[this.origin.name];
-      success();
+      // local variable should not be promise
+      // it should be resolved during initialization
+      callCtx.value = controlContext.variables[callCtx.origin.name];
+      Utility.invokeCallback(success);
     } catch (e) {
       console.log(`RefExpr.execute: ${e}`);
       // if (e.stack) {
@@ -53,3 +63,4 @@ var RefExpr = {
 module.exports = RefExpr;
 
 var ContextBuilder = require('./ContextBuilder');
+var Utility = require('../utility');

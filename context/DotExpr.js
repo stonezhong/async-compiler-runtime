@@ -23,7 +23,7 @@ var DotExpr = {
               owner: ownerCtx.value,
               field: fieldCtx.value
             }
-            success();
+            Utility.invokeCallback(success);
             return ;
           }, fail)
         }, fail);
@@ -35,7 +35,7 @@ var DotExpr = {
         fieldCtx.execute(controlContext, options, function() {
           callCtx.owner = ownerCtx.value,
           callCtx.value = ownerCtx.value[fieldCtx.value];
-          success();
+          Utility.invokeCallback(success);
           return ;
         }, fail)
       }, fail);

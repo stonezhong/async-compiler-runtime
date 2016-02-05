@@ -14,18 +14,18 @@ var ForStatement = {
       conditionCtx.execute(controlContext, options, function() {
         if (!conditionCtx.value) {
           controlContext.loopCount --;
-          success();
+          Utility.invokeCallback(success);
           return ;
         }
         var bodyCtx = ContextBuilder.buildCallContext(callCtx.origin.body);
         bodyCtx.execute(controlContext, options, function() {
           if (controlContext.hitReturn) {
-            success();
+            Utility.invokeCallback(success);
             return ;
           }
           if (bodyCtx.hitBreak) {
             controlContext.loopCount --;
-            success();
+            Utility.invokeCallback(success);
             return ;
           }
           var stepCtx = ContextBuilder.buildCallContext(callCtx.origin.step);
@@ -59,3 +59,4 @@ var ForStatement = {
 module.exports = ForStatement;
 
 var ContextBuilder = require('./ContextBuilder');
+var Utility = require('../utility');

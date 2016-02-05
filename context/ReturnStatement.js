@@ -14,7 +14,7 @@ var ReturnStatement = {
         function() {
           controlContext.hitReturn = true;
           controlContext.returnValue = valueCtx.value;
-          success();
+          Utility.invokeCallback(success);
         } ,
         fail
       );
@@ -28,3 +28,4 @@ var ReturnStatement = {
 module.exports = ReturnStatement;
 
 var ContextBuilder = require('./ContextBuilder');
+var Utility = require('../utility');

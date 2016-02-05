@@ -18,7 +18,7 @@ var StatementSequence = {
       }
 
       if (callCtx.nextIndex >= callCtx.statements.length) {
-        success();
+        Utility.invokeCallback(success);
         return ;
       }
 
@@ -31,13 +31,13 @@ var StatementSequence = {
         options,
         function() {
           if (controlContext.hitReturn) {
-            success();
+            Utility.invokeCallback(success);
             return ;
           }
 
           if ((controlContext.loopCount > 0) && (childCtx.hitBreak || childCtx.hitContinue)) {
             Utility.copyLoopStatus(callCtx, childCtx);
-            success();
+            Utility.invokeCallback(success);
             return ;
           }
 

@@ -10,7 +10,7 @@ var ContinueStatement = {
       if (controlContext.loopCount > 0) {
         callCtx.hitContinue = true;
       }
-      success();
+      Utility.invokeCallback(success);
     } catch (e) {
       console.log(`ContinueStatement.execute: ${e}`);
       throw e;
@@ -21,3 +21,4 @@ var ContinueStatement = {
 module.exports = ContinueStatement;
 
 var ContextBuilder = require('./ContextBuilder');
+var Utility = require('../utility');

@@ -90,7 +90,7 @@ var BinaryExpr = {
               address.owner[address.field] = newValue;
               callCtx.value = newValue;
             }
-            success();
+            Utility.invokeCallback(success);
             return ;
           }
 
@@ -158,7 +158,7 @@ var BinaryExpr = {
             default:
               throw "unrecognized operator";
           }
-          success();
+          Utility.invokeCallback(success);
         }, fail)
       }, fail);
     } catch (e) {

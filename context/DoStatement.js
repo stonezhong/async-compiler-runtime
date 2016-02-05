@@ -1,8 +1,8 @@
-var WhileStatement = {
+var DoStatement = {
   buildContext: function(statement) {
     return {
-      execute: WhileStatement.execute,
-      executeLoop: WhileStatement.executeLoop,
+      execute: DoStatement.execute,
+      executeLoop: DoStatement.executeLoop,
       origin: statement,
     };
   },
@@ -10,16 +10,12 @@ var WhileStatement = {
   executeLoop: function(controlContext, options, success, fail) {
     try {
       var callCtx = this;
-      var conditionCtx = ContextBuilder.buildCallContext(callCtx.origin.condition);
-      conditionCtx.execute(controlContext, options, function() {
-        if (!conditionCtx.value) {
-          controlContext.loopCount --;
-          Utility.invokeCallback(success);
-          return ;
-        }
-        var bodyCtx = ContextBuilder.buildCallContext(callCtx.origin.body);
-        bodyCtx.execute(controlContext, options, function() {
-          if (controlContext.hitReturn) {
+      var bodyCtx = ContextBuilder.buildCallContext(callCtx.origin.body);
+      bodyCtx.execute(controlContext, options, function() {
+        var conditionCtx = ContextBuilder.buildCallContext(callCtx.origin.condition);
+        conditionCtx.execute(controlContext, options, function() {
+          if (!conditionCtx.value) {
+            controlContext.loopCount --;
             Utility.invokeCallback(success);
             return ;
           }
@@ -28,12 +24,11 @@ var WhileStatement = {
             Utility.invokeCallback(success);
             return ;
           }
-
           callCtx.executeLoop(controlContext, options, success, fail);
         }, fail);
       }, fail);
     } catch (e) {
-      console.log(`WhileStatement.execute<InLoop>: ${e}`);
+      console.log(`DoStatement.execute<InLoop>: ${e}`);
       throw e;
     }
   },
@@ -44,13 +39,13 @@ var WhileStatement = {
       controlContext.loopCount ++;
       callCtx.executeLoop(controlContext, options, success, fail);
     } catch (e) {
-      console.log(`WhileStatement.execute: ${e}`);
+      console.log(`DoStatement.execute: ${e}`);
       throw e;
     }
   }
 };
 
-module.exports = WhileStatement;
+module.exports = DoStatement;
 
 var ContextBuilder = require('./ContextBuilder');
 var Utility = require('../utility');

@@ -10,7 +10,7 @@ var BreakStatement = {
       if (controlContext.loopCount > 0) {
         callCtx.hitBreak = true;
       }
-      success();
+      Utility.invokeCallback(success);
     } catch (e) {
       console.log(`BreakStatement.execute: ${e}`);
       throw e;
@@ -21,3 +21,4 @@ var BreakStatement = {
 module.exports = BreakStatement;
 
 var ContextBuilder = require('./ContextBuilder');
+var Utility = require('../utility');

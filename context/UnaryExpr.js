@@ -79,7 +79,7 @@ var UnaryExpr = {
       exprCtx.execute(controlContext, newOptions, function() {
         if (!newOptions.asAddress) {
           callCtx.value = calculateValue(exprCtx.value, callCtx.origin.operator);
-          success();
+          Utility.invokeCallback(success);
           return ;
         }
 
@@ -91,7 +91,7 @@ var UnaryExpr = {
           object = controlContext.variables;
           field = address.name;
           callCtx.value = performObjectField(object, field, callCtx.origin.operator, callCtx.origin.isPost);
-          success();
+          Utility.invokeCallback(success);
           return ;
         }
 
@@ -99,7 +99,7 @@ var UnaryExpr = {
           object = address.owner;
           field = address.field;
           callCtx.value = performObjectField(object, field, callCtx.origin.operator, callCtx.origin.isPost);
-          success();
+          Utility.invokeCallback(success);
           return ;
         }
 
@@ -114,7 +114,7 @@ var UnaryExpr = {
           } else {
             callCtx.value = newValue;
           }
-          success();
+          Utility.invokeCallback(success);
           return ;
         }
         throw "unrecognized address type";

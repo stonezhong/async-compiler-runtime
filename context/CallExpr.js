@@ -16,7 +16,7 @@ var CallExpr = {
   executeArgs: function(controlContext, options, success, fail) {
     var callCtx = this;
     if (callCtx.nextIndex >= callCtx.args.length) {
-      success();
+      Utility.invokeCallback(success);
       return ;
     }
 
@@ -37,14 +37,14 @@ var CallExpr = {
           argValues[i] = callCtx.args[i].value;
         }
         var funcReturn = callCtx.func.value.apply(callCtx.func.owner, argValues);
-        if (funcReturn instanceof Promise) {
+        if (Utility.isPromise(funcReturn)) {
           funcReturn.then(function(v) {
             callCtx.value = v;
-            success();
+            Utility.invokeCallback(success);
           }, fail);
         } else {
           callCtx.value = funcReturn;
-          success();
+          Utility.invokeCallback(success);
         }
       }, fail);
     }, fail);;
@@ -54,3 +54,4 @@ var CallExpr = {
 module.exports = CallExpr;
 
 var ContextBuilder = require('./ContextBuilder');
+var Utility = require('../utility');
