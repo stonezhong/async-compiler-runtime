@@ -48,6 +48,12 @@ var ContextBuilder = {
     if (node.type === 'seq') {
       return SeqExpr.buildContext(node);
     }
+    if (node.type === 'object') {
+      return ObjectExpr.buildContext(node);
+    }
+    if (node.type === 'array') {
+      return ArrayExpr.buildContext(node);
+    }
     throw "unrecognized node";
   }
 };
@@ -71,3 +77,5 @@ var ContinueStatement = require('./ContinueStatement');
 var BreakStatement = require('./BreakStatement');
 var DoStatement = require('./DoStatement');
 var SeqExpr = require('./SeqExpr');
+var ObjectExpr = require('./ObjectExpr');
+var ArrayExpr = require('./ArrayExpr');
