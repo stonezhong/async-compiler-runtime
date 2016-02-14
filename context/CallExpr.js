@@ -7,6 +7,7 @@ var CallExpr = {
     return {
       func:   ContextBuilder.buildCallContext(node.func),
       args:   args,
+      argValues: new Array(args.length),
       origin: node,
       nextIndex: 0,
       execute: CallExpr.execute,
@@ -22,32 +23,32 @@ var CallExpr = {
 
     var arg = callCtx.args[callCtx.nextIndex];
     arg.execute(controlContext, options, function() {
+      if (Utility.isThenable(arg.value)) {
+        arg.value.then(function(v) {
+          callCtx.argValues[callCtx.nextIndex] = v;
+          callCtx.nextIndex ++;
+          callCtx.executeArgs(controlContext, options, success, fail);
+        });
+        return ;
+      }
+      callCtx.argValues[callCtx.nextIndex] = arg.value;
       callCtx.nextIndex ++;
       callCtx.executeArgs(controlContext, options, success, fail);
     }, fail);
-
   },
 
   execute: function(controlContext, options, success, fail) {
-    var callCtx = this;
-    callCtx.func.execute(controlContext, options, function() {
-      callCtx.executeArgs(controlContext, options, function() {
-        var argValues = new Array(callCtx.args.length);
-        for (var i = 0;  i < argValues.length; i ++) {
-          argValues[i] = callCtx.args[i].value;
-        }
-        var funcReturn = callCtx.func.value.apply(callCtx.func.owner, argValues);
-        if (Utility.isPromise(funcReturn)) {
-          funcReturn.then(function(v) {
-            callCtx.value = v;
-            Utility.invokeCallback(success);
-          }, fail);
-        } else {
-          callCtx.value = funcReturn;
+    try {
+      var callCtx = this;
+      callCtx.func.execute(controlContext, options, function() {
+        callCtx.executeArgs(controlContext, options, function() {
+          callCtx.value = callCtx.func.value.apply(callCtx.func.owner, callCtx.argValues);
           Utility.invokeCallback(success);
-        }
-      }, fail);
-    }, fail);;
+        }, fail);
+      }, fail);;
+    } catch (e) {
+      console.log(`CallExpr.execute: ${e}`);
+    }
   }
 };
 

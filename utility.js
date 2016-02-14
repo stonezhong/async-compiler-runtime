@@ -27,6 +27,10 @@ var Utility = {
         typeof(value.catch) === 'function');
   },
 
+  isThenable(value) {
+    return (typeof(value) === 'object' && typeof(value.then) === 'function')
+  },
+
   invokeCallback(callback) {
     Promise.resolve().then(callback);
   },

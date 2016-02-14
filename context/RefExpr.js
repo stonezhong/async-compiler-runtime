@@ -33,21 +33,11 @@ var RefExpr = {
 
       if (callCtx.origin.refType === 'external') {
         var getter = controlContext.accessors["get_" + callCtx.origin.name];
-        var value = getter();
-        if (Utility.isPromise(value)) {
-          value.then(function(resolvedValue) {
-            callCtx.value = resolvedValue;
-            Utility.invokeCallback(success);
-          }, fail);
-          return ;
-        }
-        callCtx.value = value;
+        callCtx.value = getter();
         Utility.invokeCallback(success);
         return ;
       }
 
-      // local variable should not be promise
-      // it should be resolved during initialization
       callCtx.value = controlContext.variables[callCtx.origin.name];
       Utility.invokeCallback(success);
     } catch (e) {

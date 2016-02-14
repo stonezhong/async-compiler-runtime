@@ -1,4 +1,4 @@
 # example: https://github.com/github/gitignore/blob/master/Node.gitignore
 
 node_modules
-
+test/src/*_out.js
