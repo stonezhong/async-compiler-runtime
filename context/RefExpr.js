@@ -1,4 +1,3 @@
-// TODO: ref could point to a promise
 // There are 4 refTypes
 // 'external'
 // 'argument'
@@ -38,6 +37,7 @@ var RefExpr = {
         return ;
       }
 
+      // callCtx.origin.refType is 'local' or 'argument'
       callCtx.value = controlContext.variables[callCtx.origin.name];
       Utility.invokeCallback(success);
     } catch (e) {

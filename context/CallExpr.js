@@ -42,8 +42,18 @@ var CallExpr = {
       var callCtx = this;
       callCtx.func.execute(controlContext, options, function() {
         callCtx.executeArgs(controlContext, options, function() {
-          callCtx.value = callCtx.func.value.apply(callCtx.func.owner, callCtx.argValues);
-          Utility.invokeCallback(success);
+          var returnValue = callCtx.func.value.apply(callCtx.func.owner, callCtx.argValues);
+          if (!Utility.isThenable(returnValue)) {
+            callCtx.value = returnValue;
+            Utility.invokeCallback(success);
+            return ;
+          }
+          returnValue.then(function(resolvedValue) {
+            callCtx.value = resolvedValue;
+            Utility.invokeCallback(success);
+            return ;
+          });
+          return ;
         }, fail);
       }, fail);;
     } catch (e) {
