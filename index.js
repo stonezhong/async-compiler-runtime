@@ -21,8 +21,8 @@ var AsyncTool = {
           function() {
             resolve(controlContext.returnValue);
           },
-          function() {
-            reject("error");
+          function(reason) {
+            reject(reason);
           }
         );
       }

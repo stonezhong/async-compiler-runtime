@@ -28,7 +28,7 @@ var CallExpr = {
           callCtx.argValues[callCtx.nextIndex] = v;
           callCtx.nextIndex ++;
           callCtx.executeArgs(controlContext, options, success, fail);
-        });
+        }, fail);
         return ;
       }
       callCtx.argValues[callCtx.nextIndex] = arg.value;
@@ -42,7 +42,13 @@ var CallExpr = {
       var callCtx = this;
       callCtx.func.execute(controlContext, options, function() {
         callCtx.executeArgs(controlContext, options, function() {
-          var returnValue = callCtx.func.value.apply(callCtx.func.owner, callCtx.argValues);
+          var returnValue;
+          try {
+            returnValue = callCtx.func.value.apply(callCtx.func.owner, callCtx.argValues);
+          } catch (e) {
+            fail(e);
+            return ;
+          }
           if (!Utility.isThenable(returnValue)) {
             callCtx.value = returnValue;
             Utility.invokeCallback(success);
@@ -52,7 +58,7 @@ var CallExpr = {
             callCtx.value = resolvedValue;
             Utility.invokeCallback(success);
             return ;
-          });
+          }, fail);
           return ;
         }, fail);
       }, fail);;

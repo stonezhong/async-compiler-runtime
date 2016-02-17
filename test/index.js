@@ -21,4 +21,7 @@ describe('Test Async Compiler Runtime Library', function() {
   it('ForStatement', function() {
     runTest('ForStatement');
   });
+  it('ErrorFunctionCall', function() {
+    runTest('ErrorFunctionCall');
+  });
 });
