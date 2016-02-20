@@ -49,19 +49,11 @@ var CallExpr = {
             fail(e);
             return ;
           }
-          if (!Utility.isThenable(returnValue)) {
-            callCtx.value = returnValue;
-            Utility.invokeCallback(success);
-            return ;
-          }
-          returnValue.then(function(resolvedValue) {
-            callCtx.value = resolvedValue;
-            Utility.invokeCallback(success);
-            return ;
-          }, fail);
+          callCtx.value = returnValue;
+          Utility.invokeCallback(success);
           return ;
         }, fail);
-      }, fail);;
+      }, fail);
     } catch (e) {
       console.log(`CallExpr.execute: ${e}`);
     }

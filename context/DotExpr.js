@@ -33,10 +33,17 @@ var DotExpr = {
       ownerCtx.execute(controlContext, options, function() {
         fieldCtx = ContextBuilder.buildCallContext(callCtx.origin.field);
         fieldCtx.execute(controlContext, options, function() {
-          callCtx.owner = ownerCtx.value,
-          callCtx.value = ownerCtx.value[fieldCtx.value];
-          Utility.invokeCallback(success);
-          return ;
+          Promise.all([Promise.resolve(ownerCtx.value), Promise.resolve(fieldCtx.value)]).then(
+            function(ownerAndField) {
+              var owner = ownerAndField[0];
+              var field = ownerAndField[1];
+              callCtx.owner = owner;
+              callCtx.value = owner[field];
+              Utility.invokeCallback(success);
+              return ;
+            },
+            fail
+          );
         }, fail)
       }, fail);
     } catch (e) {

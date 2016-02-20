@@ -14,17 +14,19 @@ var DoStatement = {
       bodyCtx.execute(controlContext, options, function() {
         var conditionCtx = ContextBuilder.buildCallContext(callCtx.origin.condition);
         conditionCtx.execute(controlContext, options, function() {
-          if (!conditionCtx.value) {
-            controlContext.loopCount --;
-            Utility.invokeCallback(success);
-            return ;
-          }
           if (bodyCtx.hitBreak) {
             controlContext.loopCount --;
             Utility.invokeCallback(success);
             return ;
           }
-          callCtx.executeLoop(controlContext, options, success, fail);
+          Promise.resolve(conditionCtx.value).then(function(conditionValue) {
+            if (!conditionValue) {
+              controlContext.loopCount --;
+              Utility.invokeCallback(success);
+              return ;
+            }
+            callCtx.executeLoop(controlContext, options, success, fail);
+          }, fail);
         }, fail);
       }, fail);
     } catch (e) {

@@ -20,20 +20,53 @@ function isLeftAddress(operator) {
 
 function compute(operator, a, b) {
   switch(operator) {
-    case "+=":  return a + b;
-    case "-=":  return a - b;
-    case "*=":  return a * b;
-    case "/=":  return a / b;
-    case "%=":  return a % b;
-    case "&&=": return a && b;
-    case "||=": return a || b;
-    case "^=":  return a ^= b;
-    case "&=":  return a &= b;
-    case "|=":  return a |= b;
-    case ">>=": return a >>= b;
-    case "<<=": return a <<= b;
+    case '+':   return a + b;
+    case '-':   return a - b;
+    case '*':   return a * b;
+    case '/':   return a / b;
+    case '%':   return a % b;
+    case '&&':  return a && b;
+    case '||':  return a || b;
+    case '^':   return a ^ b;
+    case '&':   return a & b;
+    case '|':   return a | b;
+    case '>>':  return a >> b;
+    case '<<':  return a << b;
+    case '>':   return a > b;
+    case '>=':  return a >= b;
+    case '<':   return a < b;
+    case '<=':  return a <= b;
+    case '==':  return a == b;
+    case '!=':  return a != b;
+    case '===': return a === b;
+    case '!==': return a !== b;
+    case '+=':  return a + b;
+    case '-=':  return a - b;
+    case '*=':  return a * b;
+    case '/=':  return a / b;
+    case '%=':  return a % b;
+    case '&&=': return a && b;
+    case '||=': return a || b;
+    case '^=':  return a ^= b;
+    case '&=':  return a &= b;
+    case '|=':  return a |= b;
+    case '>>=': return a >>= b;
+    case '<<=': return a <<= b;
   }
-  throw "Unrecognized operator";
+  throw new Error('operator \'' + operator + '\' is unrecognized');
+}
+
+function doCompute(operator, a, b, success, fail) {
+  Promise.all([Promise.resolve(a), Promise.resolve(b)]).then(function(values) {
+    var result;
+    try {
+      result = compute(operator, values[0], values[1]);
+    } catch (e) {
+      fail(e);
+      return ;
+    }
+    success(result);
+  }, fail);
 }
 
 var BinaryExpr = {
@@ -48,7 +81,9 @@ var BinaryExpr = {
       var callCtx = this;
 
       var options1 = options;
-      if (isLeftAddress(callCtx.origin.operator)) {
+
+      var leftIsAddress = isLeftAddress(callCtx.origin.operator);
+      if (leftIsAddress) {
         options1 = Utility.updateOptions(options, {asAddress: true});
       }
 
@@ -57,108 +92,104 @@ var BinaryExpr = {
         var rightCtx = ContextBuilder.buildCallContext(callCtx.origin.right);
         rightCtx.execute(controlContext, options, function() {
 
-          if (isLeftAddress(callCtx.origin.operator)) {
+          if (leftIsAddress) {
             var address = leftCtx.address;
             if (address.type === 'local' || address.type === 'argument') {
               if (callCtx.origin.operator === "=") {
                 controlContext.variables[address.name] = rightCtx.value;
-              } else {
-                controlContext.variables[address.name] = compute(
-                  callCtx.origin.operator,
-                  controlContext.variables[address.name],
-                  rightCtx.value);
+                callCtx.value = rightCtx.value;
+                Utility.invokeCallback(success);
+                return ;
               }
-              callCtx.value = controlContext.variables[address.name];
-            } else if (address.type === 'external') {
-              var newValue;
-              if (callCtx.origin.operator === "=") {
-                newValue = rightCtx.value;
-              } else {
-                var getter = controlContext.accessors["get_" + address.name];
-                newValue = compute(callCtx.origin.operator, getter(), rightCtx.value);
-              }
-              var setter = controlContext.accessors["set_" + address.name];
-              setter(newValue);
-              callCtx.value = newValue;
-            } else if (address.type === 'field') {
-              var newValue;
-              if (callCtx.origin.operator === "=") {
-                newValue = rightCtx.value;
-              } else {
-                newValue = compute(callCtx.origin.operator, address.owner[address.field], rightCtx.value);
-              }
-              address.owner[address.field] = newValue;
-              callCtx.value = newValue;
+
+              doCompute(
+                callCtx.origin.operator,
+                controlContext.variables[address.name],
+                rightCtx.value,
+                function(result) {
+                  controlContext.variables[address.name] = result;
+                  callCtx.value = result;
+                  Utility.invokeCallback(success);
+                  return ;
+                },
+                fail
+              );
+              return ;
             }
-            Utility.invokeCallback(success);
+
+            if (address.type === 'external') {
+              var setter = controlContext.accessors["set_" + address.name];
+              if (callCtx.origin.operator === "=") {
+                setter(rightCtx.value);
+                callCtx.value = rightCtx.value;
+                Utility.invokeCallback(success);
+                return ;
+              }
+
+              var getter = controlContext.accessors["get_" + address.name];
+              doCompute(
+                callCtx.origin.operator,
+                getter(),
+                rightCtx.value,
+                function(result) {
+                  setter(result);
+                  callCtx.value = result;
+                  Utility.invokeCallback(success);
+                  return ;
+                },
+                fail
+              );
+              return ;
+            }
+
+            if (address.type === 'field') {
+              Promise.all([Promise.resolve(address.owner), Promise.resolve(address.field)]).then(
+                function(ownerAndField) {
+                  var owner = ownerAndField[0];
+                  var field = ownerAndField[1];
+
+                  if (callCtx.origin.operator === "=") {
+                    owner[field] = rightCtx.value;
+                    callCtx.value = rightCtx.value;
+                    Utility.invokeCallback(success);
+                    return ;
+                  }
+
+                  doCompute(
+                    callCtx.origin.operator,
+                    owner[field],
+                    rightCtx.value,
+                    function(result) {
+                      owner[field] = result;
+                      callCtx.value = result;
+                      Utility.invokeCallback(success);
+                      return ;
+                    },
+                    fail
+                  );
+                  return ;
+                },
+                fail
+              );
+              return ;
+            }
+
+            fail(new Error('internal error: invalid address type'));
             return ;
           }
 
-          switch(callCtx.origin.operator) {
-            case "+":
-              callCtx.value = leftCtx.value + rightCtx.value;
-              break;
-            case "-":
-              callCtx.value = leftCtx.value - rightCtx.value;
-              break;
-            case "*":
-              callCtx.value = leftCtx.value * rightCtx.value;
-              break;
-            case "/":
-              callCtx.value = leftCtx.value / rightCtx.value;
-              break;
-            case "%":
-              callCtx.value = leftCtx.value % rightCtx.value;
-              break;
-            case "&&":
-              callCtx.value = leftCtx.value && rightCtx.value;
-              break;
-            case "||":
-              callCtx.value = leftCtx.value || rightCtx.value;
-              break;
-            case "^":
-              callCtx.value = leftCtx.value ^ rightCtx.value;
-              break;
-            case "&":
-              callCtx.value = leftCtx.value & rightCtx.value;
-              break;
-            case "|":
-              callCtx.value = leftCtx.value | rightCtx.value;
-              break;
-            case ">>":
-              callCtx.value = leftCtx.value >> rightCtx.value;
-              break;
-            case "<<":
-              callCtx.value = leftCtx.value << rightCtx.value;
-              break;
-            case ">":
-              callCtx.value = (leftCtx.value > rightCtx.value);
-              break;
-            case ">=":
-              callCtx.value = (leftCtx.value >= rightCtx.value);
-              break;
-            case "<":
-              callCtx.value = (leftCtx.value < rightCtx.value);
-              break;
-            case "<=":
-              callCtx.value = (leftCtx.value <= rightCtx.value);
-              break;
-            case "==":
-              callCtx.value = (leftCtx.value == rightCtx.value);
-              break;
-            case "!=":
-              callCtx.value = (leftCtx.value != rightCtx.value);
-              break;
-            case "===":
-              callCtx.value = (leftCtx.value === rightCtx.value);
-              break;
-            case "!==":
-              callCtx.value = (leftCtx.value !== rightCtx.value);
-              break;
-            default:
-              throw "unrecognized operator";
-          }
-          Utility.invokeCallback(success);
+          doCompute(
+            callCtx.origin.operator,
+            leftCtx.value,
+            rightCtx.value,
+            function(result) {
+              callCtx.value = result;
+              Utility.invokeCallback(success);
+              return ;
+            },
+            fail
+          );
+          return ;
         }, fail)
       }, fail);
     } catch (e) {

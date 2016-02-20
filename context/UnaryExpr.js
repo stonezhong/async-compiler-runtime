@@ -1,62 +1,25 @@
-// TODO: remove duplicate code among performXXX
-
-function performObjectField(object, field, operator, isPost) {
-  var ret ;
-
-  if (isPost) {
-    switch (operator) {
-      case "++":
-        ret = object[field] ++;
-        break;
-      case "--":
-        ret = object[field] --;
-        break;
-      default:
-        throw "unrecognized unary operator";
-    }
-  } else {
-    switch (operator) {
-      case "++":
-        ret = ++ object[field];
-        break;
-      case "--":
-        ret = -- object[field];
-        break;
-      case "!":
-        ret = !object[field];
-        break;
-      case "~":
-        ret = ~object[field];
-        break;
-      default:
-        throw "unrecognized unary operator";
-    }
+// based on value and operator, calculate it
+function compute(operator, a) {
+  switch (operator) {
+    case '++': return ++a;
+    case '--': return --a;
+    case '!':  return !a;
+    case '~':  return ~a;
   }
-
-  return ret;
+  throw new Error('operator \'' + operator + '\' is unrecognized');
 }
 
-// based on value and operator, calculate it
-function calculateValue(value, operator) {
-  var ret ;
-
-  switch (operator) {
-    case "++":
-      ret = ++ value;
-      break;
-    case "--":
-      ret = -- value;
-      break;
-    case "!":
-      ret = !value;
-      break;
-    case "~":
-      ret = ~value;
-      break;
-    default:
-      throw "unrecognized unary operator";
-  }
-  return ret;
+function doCompute(operator, a, success, fail) {
+  Promise.resolve(a).then(function(oldValue) {
+    var newValue;
+    try {
+      newValue = compute(operator, oldValue);
+    } catch (e) {
+      fail(e);
+      return ;
+    }
+    success(oldValue, newValue);
+  }, fail);
 }
 
 var UnaryExpr = {
@@ -69,55 +32,86 @@ var UnaryExpr = {
   execute: function(controlContext, options, success, fail) {
     try {
       var callCtx = this;
-      var exprCtx = ContextBuilder.buildCallContext(callCtx.origin.expr);
 
       var newOptions = options;
-      if ((callCtx.origin.operator === "++") || (callCtx.origin.operator === "--")) {
+      var leftIsAddress = ((callCtx.origin.operator === "++") || (callCtx.origin.operator === "--"));
+      if (leftIsAddress) {
         newOptions = Utility.updateOptions(options, {asAddress: true});
       }
 
+      var exprCtx = ContextBuilder.buildCallContext(callCtx.origin.expr);
       exprCtx.execute(controlContext, newOptions, function() {
-        if (!newOptions.asAddress) {
-          callCtx.value = calculateValue(exprCtx.value, callCtx.origin.operator);
-          Utility.invokeCallback(success);
+        if (!leftIsAddress) {
+          doCompute(
+            callCtx.origin.operator,
+            exprCtx.value,
+            function(oldValue, newValue) {
+              callCtx.value = newValue;
+              Utility.invokeCallback(success);
+              return ;
+            },
+            fail
+          );
           return ;
         }
 
         var address = exprCtx.address;
-        var object;
-        var field;
-
         if (address.type === 'local' || address.type === 'argument') {
-          object = controlContext.variables;
-          field = address.name;
-          callCtx.value = performObjectField(object, field, callCtx.origin.operator, callCtx.origin.isPost);
-          Utility.invokeCallback(success);
-          return ;
-        }
-
-        if (address.type === 'field') {
-          object = address.owner;
-          field = address.field;
-          callCtx.value = performObjectField(object, field, callCtx.origin.operator, callCtx.origin.isPost);
-          Utility.invokeCallback(success);
+          doCompute(
+            callCtx.origin.operator,
+            controlContext.variables[address.name],
+            function(oldValue, newValue) {
+              controlContext.variables[address.name] = newValue;
+              callCtx.value = (callCtx.origin.isPost ? oldValue : newValue);
+              Utility.invokeCallback(success);
+              return ;
+            },
+            fail
+          );
           return ;
         }
 
         if (address.type === 'external') {
           var setter = controlContext.accessors["set_" + address.name];
           var getter = controlContext.accessors["get_" + address.name];
-          var value = getter()
-          var newValue = calculateValue(value, callCtx.origin.operator);
-          setter(newValue);
-          if (callCtx.origin.isPost) {
-            callCtx.value = value;
-          } else {
-            callCtx.value = newValue;
-          }
-          Utility.invokeCallback(success);
+
+          doCompute(
+            callCtx.origin.operator,
+            getter(),
+            function(oldValue, newValue) {
+              setter(newValue);
+              callCtx.value = (callCtx.origin.isPost ? oldValue : newValue);
+              Utility.invokeCallback(success);
+              return ;
+            },
+            fail
+          );
           return ;
         }
-        throw "unrecognized address type";
+
+        if (address.type === 'field') {
+          Promise.all([Promise.resolve(address.owner), Promise.resolve(address.field)]).then(
+            function(ownerAndField) {
+              var owner = ownerAndField[0];
+              var field = ownerAndField[1];
+
+              doCompute(
+                callCtx.origin.operator,
+                owner[field],
+                function(oldValue, newValue) {
+                  owner[field] = newValue;
+                  callCtx.value = (callCtx.origin.isPost ? oldValue : newValue);
+                  Utility.invokeCallback(success);
+                  return ;
+                },
+                fail
+              );
+            }, fail
+          );
+        }
+
+        fail(new Error('internal error: invalid address type'));
+        return ;
       }, fail);
     } catch (e) {
       console.log(`UnaryExpr.execute: ${e}`);

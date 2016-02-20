@@ -45,7 +45,7 @@ function inc_return_rejected(a) {
 
 /** @async **/
 function test_003() {
-  inc_return_rejected(1);
+  [ inc_return_rejected(1) ];
 }
 
 test_003().then(function(result) {

@@ -12,24 +12,25 @@ var WhileStatement = {
       var callCtx = this;
       var conditionCtx = ContextBuilder.buildCallContext(callCtx.origin.condition);
       conditionCtx.execute(controlContext, options, function() {
-        if (!conditionCtx.value) {
-          controlContext.loopCount --;
-          Utility.invokeCallback(success);
-          return ;
-        }
-        var bodyCtx = ContextBuilder.buildCallContext(callCtx.origin.body);
-        bodyCtx.execute(controlContext, options, function() {
-          if (controlContext.hitReturn) {
-            Utility.invokeCallback(success);
-            return ;
-          }
-          if (bodyCtx.hitBreak) {
+        Promise.resolve(conditionCtx.value).then(function(conditionValue) {
+          if (!conditionValue) {
             controlContext.loopCount --;
             Utility.invokeCallback(success);
             return ;
           }
-
-          callCtx.executeLoop(controlContext, options, success, fail);
+          var bodyCtx = ContextBuilder.buildCallContext(callCtx.origin.body);
+          bodyCtx.execute(controlContext, options, function() {
+            if (controlContext.hitReturn) {
+              Utility.invokeCallback(success);
+              return ;
+            }
+            if (bodyCtx.hitBreak) {
+              controlContext.loopCount --;
+              Utility.invokeCallback(success);
+              return ;
+            }
+            callCtx.executeLoop(controlContext, options, success, fail);
+          }, fail);
         }, fail);
       }, fail);
     } catch (e) {

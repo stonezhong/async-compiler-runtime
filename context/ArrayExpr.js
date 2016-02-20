@@ -1,34 +1,59 @@
+// TODO(Stone Zhong): if at least one promise in localContex.values is
+//                    rejected, I should fail fast
+function resolveEachElement(localContext, controlContext, options, success, fail) {
+  try {
+    var callCtx = localContext.callCtx;
+    if (localContext.nextIndex >= callCtx.origin.elements.length) {
+      Utility.invokeCallback(success);
+      return ;
+    }
+
+    var childElement = callCtx.origin.elements[localContext.nextIndex];
+    var childCtx = ContextBuilder.buildCallContext(childElement);
+    childCtx.execute(
+      controlContext,
+      options,
+      function() {
+        localContext.values[localContext.nextIndex] = Promise.resolve(childCtx.value);
+        localContext.nextIndex ++;
+        resolveEachElement(localContext, controlContext, options, success, fail);
+        return ;
+      },
+      fail
+    );
+  } catch (e) {
+    console.log(`ArrayExpr.resolveEachElement: ${e}`);
+    throw e;
+  }
+}
+
 var ArrayExpr = {
   buildContext: function(node) {
     return {
-      nextIndex: 0,
       origin: node,
-      execute: ArrayExpr.execute
+      execute: ArrayExpr.execute,
     };
   },
+
   execute: function(controlContext, options, success, fail) {
     try {
       var callCtx = this;
-      callCtx.valuePending = callCtx.valuePending || [];
-
-      if (callCtx.nextIndex >= callCtx.origin.elements.length) {
-        callCtx.value = callCtx.valuePending;
-        Utility.invokeCallback(success);
-        return ;
-      }
-
-      var childElement = callCtx.origin.elements[callCtx.nextIndex];
-      var childCtx = ContextBuilder.buildCallContext(childElement);
-      childCtx.execute(
+      var localContext = {
+        callCtx: callCtx,
+        nextIndex: 0,
+        values: new Array(callCtx.origin.elements.length),
+      };
+      resolveEachElement(
+        localContext,
         controlContext,
         options,
         function() {
-          callCtx.valuePending.push(childCtx.value);
-          callCtx.nextIndex ++;
-          callCtx.execute(controlContext, options, success, fail);
+          Promise.all(localContext.values).then(function(values) {
+            callCtx.value = values;
+            Utility.invokeCallback(success);
+          }, fail);
         },
-        fail
-      );
+        fail);
     } catch (e) {
       console.log(`ArrayExpr.execute: ${e}`);
       throw e;

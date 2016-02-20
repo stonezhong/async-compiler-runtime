@@ -11,17 +11,20 @@ var IfStatement = {
       var callCtx = this;
       var exprCtx = ContextBuilder.buildCallContext(callCtx.origin.condition);
       exprCtx.execute(controlContext, options, function() {
-        var branchContext;
-        if (exprCtx.value) {
-          branchContext = ContextBuilder.buildCallContext(callCtx.origin.trueBranch);
-        } else {
-          branchContext = ContextBuilder.buildCallContext(callCtx.origin.falseBranch);
-        }
-        branchContext.execute(controlContext, options, function() {
-          if (!controlContext.hitReturn && (controlContext.loopCount > 0)) {
-            Utility.copyLoopStatus(callCtx, branchContext);
+        Promise.resolve(exprCtx.value).then(function(exprValue) {
+          var branchContext;
+          if (exprValue) {
+            branchContext = ContextBuilder.buildCallContext(callCtx.origin.trueBranch);
+          } else {
+            branchContext = ContextBuilder.buildCallContext(callCtx.origin.falseBranch);
           }
-          Utility.invokeCallback(success);
+          branchContext.execute(controlContext, options, function() {
+            if (!controlContext.hitReturn && (controlContext.loopCount > 0)) {
+              Utility.copyLoopStatus(callCtx, branchContext);
+            }
+            Utility.invokeCallback(success);
+            return ;
+          }, fail);
         }, fail);
       }, fail);
     } catch (e) {
