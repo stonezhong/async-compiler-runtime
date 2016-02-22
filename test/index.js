@@ -24,4 +24,10 @@ describe('Test Async Compiler Runtime Library', function() {
   it('ErrorFunctionCall', function() {
     runTest('ErrorFunctionCall');
   });
+
+  it('ArrayExpr', function() {
+    runTest('ArrayExpr_001');
+    runTest('ArrayExpr_002');
+  });
+
 });
