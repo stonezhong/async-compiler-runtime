@@ -13,7 +13,7 @@ function runTest(filename) {
 
 describe('Test Async Compiler Runtime Library', function() {
   it('BinaryExpr', function() {
-    runTest('BinaryExpr_001');
+    runTest('BinaryExpr_basic');
     runTest('BinaryExpr_noaddr');
     runTest('BinaryExpr_addr');
   });
@@ -28,8 +28,7 @@ describe('Test Async Compiler Runtime Library', function() {
   });
 
   it('ArrayExpr', function() {
-    runTest('ArrayExpr_001');
-    runTest('ArrayExpr_002');
+    runTest('ArrayExpr');
   });
 
 });
