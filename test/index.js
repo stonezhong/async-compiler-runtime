@@ -14,8 +14,8 @@ function runTest(filename) {
 describe('Test Async Compiler Runtime Library', function() {
   it('BinaryExpr', function() {
     runTest('BinaryExpr_001');
-    runTest('BinaryExpr_noaddr_ok');
-    runTest('BinaryExpr_noaddr_reject');
+    runTest('BinaryExpr_noaddr');
+    runTest('BinaryExpr_addr');
   });
   it('RefExpr', function() {
     runTest('RefExpr');
