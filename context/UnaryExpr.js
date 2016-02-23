@@ -5,6 +5,7 @@ function compute(operator, a) {
     case '--': return --a;
     case '!':  return !a;
     case '~':  return ~a;
+    case 'typeof': return typeof a;
   }
   throw new Error('operator \'' + operator + '\' is unrecognized');
 }
@@ -34,7 +35,7 @@ var UnaryExpr = {
       var callCtx = this;
 
       var newOptions = options;
-      var leftIsAddress = ((callCtx.origin.operator === "++") || (callCtx.origin.operator === "--"));
+      var leftIsAddress = ((callCtx.origin.operator === "++") || (callCtx.origin.operator === "--") || (callCtx.origin.operator === "delete"));
       if (leftIsAddress) {
         newOptions = Utility.updateOptions(options, {asAddress: true});
       }
@@ -94,6 +95,12 @@ var UnaryExpr = {
             function(ownerAndField) {
               var owner = ownerAndField[0];
               var field = ownerAndField[1];
+
+              if (callCtx.origin.operator === 'delete') {
+                callCtx.value = delete owner[field];
+                Utility.invokeCallback(success);
+                return ;
+              }
 
               doCompute(
                 callCtx.origin.operator,

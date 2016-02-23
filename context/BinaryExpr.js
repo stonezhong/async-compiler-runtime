@@ -20,6 +20,7 @@ function isLeftAddress(operator) {
 
 function compute(operator, a, b) {
   switch(operator) {
+    case 'instanceof': return a instanceof b;
     case '+':   return a + b;
     case '-':   return a - b;
     case '*':   return a * b;
