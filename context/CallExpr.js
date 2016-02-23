@@ -44,7 +44,12 @@ var CallExpr = {
         callCtx.executeArgs(controlContext, options, function() {
           var returnValue;
           try {
-            returnValue = callCtx.func.value.apply(callCtx.func.owner, callCtx.argValues);
+            if (callCtx.origin.type === 'call') {
+              returnValue = callCtx.func.value.apply(callCtx.func.owner, callCtx.argValues);
+            } else {
+              // must be a 'new'
+              returnValue = Utility.callNewOperator(callCtx.func.value, callCtx.argValues);
+            }
           } catch (e) {
             fail(e);
             return ;

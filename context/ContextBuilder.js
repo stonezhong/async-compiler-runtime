@@ -12,7 +12,7 @@ var ContextBuilder = {
     if (node.type === 'binary') {
       return BinaryExpr.buildContext(node);
     }
-    if (node.type === 'call') {
+    if ((node.type === 'call')||(node.type === 'new')) {
       return CallExpr.buildContext(node);
     }
     if (node.type === 'simpleStatement') {
