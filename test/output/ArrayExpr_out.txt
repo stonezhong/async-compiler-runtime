@@ -1,5 +1,0 @@
-testOk
-[ 'a', 1, 'b' ]
-testReject
-error c
-done

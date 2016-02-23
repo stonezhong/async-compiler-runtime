@@ -4,7 +4,7 @@
   "description": "Runtime library for async compiled javascript code",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec"
+    "test": "./runTest.sh"
   },
   "repository": {
     "type": "git",
