@@ -19,7 +19,7 @@ var RefExpr = {
         callCtx.address = {
           type: callCtx.origin.refType,
           name: callCtx.origin.name
-        }
+        };
         Utility.invokeCallback(success);
         return ;
       }
