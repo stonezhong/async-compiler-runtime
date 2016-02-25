@@ -42,21 +42,23 @@ var CallExpr = {
       var callCtx = this;
       callCtx.func.execute(controlContext, options, function() {
         callCtx.executeArgs(controlContext, options, function() {
-          var returnValue;
-          try {
-            if (callCtx.origin.type === 'call') {
-              returnValue = callCtx.func.value.apply(callCtx.func.owner, callCtx.argValues);
-            } else {
-              // must be a 'new'
-              returnValue = Utility.callNewOperator(callCtx.func.value, callCtx.argValues);
+          Promise.resolve(callCtx.func.value).then(function(funcValue) {
+            var returnValue;
+            try {
+              if (callCtx.origin.type === 'call') {
+                returnValue = funcValue.apply(callCtx.func.owner, callCtx.argValues);
+              } else {
+                // must be a 'new'
+                returnValue = Utility.callNewOperator(funcValue, callCtx.argValues);
+              }
+            } catch (e) {
+              fail(e);
+              return ;
             }
-          } catch (e) {
-            fail(e);
+            callCtx.value = returnValue;
+            Utility.invokeCallback(success);
             return ;
-          }
-          callCtx.value = returnValue;
-          Utility.invokeCallback(success);
-          return ;
+          }, fail);
         }, fail);
       }, fail);
     } catch (e) {

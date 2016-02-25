@@ -1,6 +1,6 @@
 {
   "name": "async-compiler-runtime",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "Runtime library for async compiled javascript code",
   "main": "index.js",
   "scripts": {
@@ -21,6 +21,7 @@
   "devDependencies": {
     "async-compiler": "^1.0.12",
     "chai": "^3.5.0",
+    "chai-as-promised": "^5.2.0",
     "mocha": "^2.4.5",
     "shelljs": "^0.5.3"
   }
