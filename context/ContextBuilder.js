@@ -54,6 +54,19 @@ var ContextBuilder = {
     if (node.type === 'array') {
       return ArrayExpr.buildContext(node);
     }
+    if (node.type === 'conditional') {
+      return ConditionalExpr.buildContext(node);
+    }
+
+    // TODO: remove this hack!
+    if (typeof(node) === 'function') {
+      return RefExpr.buildContext({
+        type: 'ref',
+        refType: "literal",
+        literal: node,
+      });
+    }
+
     throw "unrecognized node";
   }
 };
@@ -79,3 +92,4 @@ var DoStatement = require('./DoStatement');
 var SeqExpr = require('./SeqExpr');
 var ObjectExpr = require('./ObjectExpr');
 var ArrayExpr = require('./ArrayExpr');
+var ConditionalExpr = require('./ConditionalExpr');
