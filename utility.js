@@ -1,4 +1,16 @@
 var Utility = {
+  copyControlContext: function(oldControlContext, newControlContext, includeAccessors) {
+    newControlContext.hitReturn   = oldControlContext.hitReturn;
+    newControlContext.returnValue = oldControlContext.returnValue;
+    newControlContext.loopCount   = oldControlContext.loopCount;
+    if (includeAccessors) {
+      var accessors = {};
+      for (var key in oldControlContext.accessors) {
+        accessors[key] = oldControlContext.accessors[key];
+      }
+      newControlContext.accessors = accessors;
+    }
+  },
 
   updateOptions: function(options, update) {
     var newOptions = {};
@@ -33,6 +45,10 @@ var Utility = {
 
   invokeCallback(callback) {
     Promise.resolve().then(callback);
+  },
+
+  invokeFail(callback, error) {
+    Promise.reject(error).catch(callback);
   },
 
   /*************************************************

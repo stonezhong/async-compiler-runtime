@@ -49,11 +49,12 @@ var VarStatementSegment = {
   execute: function(controlContext, options, success, fail) {
     try {
       var callCtx = this;
+      var setter = controlContext.accessors["set_" + callCtx.name];
       callCtx.expr.execute(
         controlContext,
         options,
         function() {
-          controlContext.variables[callCtx.name] = callCtx.expr.value;
+          setter(callCtx.expr.value);
           Utility.invokeCallback(success);
         },
         fail

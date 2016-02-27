@@ -57,22 +57,7 @@ var UnaryExpr = {
         }
 
         var address = exprCtx.address;
-        if (address.type === 'local' || address.type === 'argument') {
-          doCompute(
-            callCtx.origin.operator,
-            controlContext.variables[address.name],
-            function(oldValue, newValue) {
-              controlContext.variables[address.name] = newValue;
-              callCtx.value = (callCtx.origin.isPost ? oldValue : newValue);
-              Utility.invokeCallback(success);
-              return ;
-            },
-            fail
-          );
-          return ;
-        }
-
-        if (address.type === 'external') {
+        if ((address.type === 'external') || (address.type === 'local' || address.type === 'argument')) {
           var setter = controlContext.accessors["set_" + address.name];
           var getter = controlContext.accessors["get_" + address.name];
 

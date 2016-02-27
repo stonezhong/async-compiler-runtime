@@ -95,30 +95,8 @@ var BinaryExpr = {
 
           if (leftIsAddress) {
             var address = leftCtx.address;
-            if (address.type === 'local' || address.type === 'argument') {
-              if (callCtx.origin.operator === "=") {
-                controlContext.variables[address.name] = rightCtx.value;
-                callCtx.value = rightCtx.value;
-                Utility.invokeCallback(success);
-                return ;
-              }
 
-              doCompute(
-                callCtx.origin.operator,
-                controlContext.variables[address.name],
-                rightCtx.value,
-                function(result) {
-                  controlContext.variables[address.name] = result;
-                  callCtx.value = result;
-                  Utility.invokeCallback(success);
-                  return ;
-                },
-                fail
-              );
-              return ;
-            }
-
-            if (address.type === 'external') {
+            if ((address.type === 'external') || (address.type === 'local' || address.type === 'argument')) {
               var setter = controlContext.accessors["set_" + address.name];
               if (callCtx.origin.operator === "=") {
                 setter(rightCtx.value);

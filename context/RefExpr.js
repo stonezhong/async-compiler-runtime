@@ -30,21 +30,13 @@ var RefExpr = {
         return ;
       }
 
-      if (callCtx.origin.refType === 'external') {
-        var getter = controlContext.accessors["get_" + callCtx.origin.name];
-        callCtx.value = getter();
-        Utility.invokeCallback(success);
-        return ;
-      }
-
-      // callCtx.origin.refType is 'local' or 'argument'
-      callCtx.value = controlContext.variables[callCtx.origin.name];
+      // it should be either external, or local or argument
+      var getter = controlContext.accessors["get_" + callCtx.origin.name];
+      callCtx.value = getter();
       Utility.invokeCallback(success);
+      return ;
     } catch (e) {
       console.log(`RefExpr.execute: ${e}`);
-      // if (e.stack) {
-      //   console.log(e.stack);
-      // }
       throw e;
     }
   }

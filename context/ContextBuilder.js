@@ -57,6 +57,12 @@ var ContextBuilder = {
     if (node.type === 'conditional') {
       return ConditionalExpr.buildContext(node);
     }
+    if (node.type === 'try') {
+      return TryStatement.buildContext(node);
+    }
+    if (node.type === 'throw') {
+      return ThrowStatement.buildContext(node);
+    }
 
     // TODO: remove this hack!
     if (typeof(node) === 'function') {
@@ -93,3 +99,5 @@ var SeqExpr = require('./SeqExpr');
 var ObjectExpr = require('./ObjectExpr');
 var ArrayExpr = require('./ArrayExpr');
 var ConditionalExpr = require('./ConditionalExpr');
+var TryStatement = require('./TryStatement');
+var ThrowStatement = require('./ThrowStatement');
