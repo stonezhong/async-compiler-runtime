@@ -5,6 +5,7 @@ function compute(operator, a) {
     case '--': return --a;
     case '!':  return !a;
     case '~':  return ~a;
+    case '-': return -a;
     case 'typeof': return typeof a;
   }
   throw new Error('operator \'' + operator + '\' is unrecognized');

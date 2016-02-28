@@ -66,6 +66,9 @@ var ContextBuilder = {
     if (node.type === 'forin') {
       return ForInStatement.buildContext(node);
     }
+    if (node.type === 'switch') {
+      return SwitchStatement.buildContext(node);
+    }
 
     // TODO: remove this hack!
     if (typeof(node) === 'function') {
@@ -105,3 +108,4 @@ var ConditionalExpr = require('./ConditionalExpr');
 var TryStatement = require('./TryStatement');
 var ThrowStatement = require('./ThrowStatement');
 var ForInStatement = require('./ForInStatement');
+var SwitchStatement = require('./SwitchStatement');

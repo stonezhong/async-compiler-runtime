@@ -10,5 +10,6 @@ node --harmony node_modules/async-compiler/compile.js --input test/src/Condition
 node --harmony node_modules/async-compiler/compile.js --input test/src/ThrowStatement.js    --output test/build/ThrowStatement.js
 node --harmony node_modules/async-compiler/compile.js --input test/src/TryCatchStatement.js --output test/build/TryCatchStatement.js
 node --harmony node_modules/async-compiler/compile.js --input test/src/ForInStatement.js    --output test/build/ForInStatement.js
+node --harmony node_modules/async-compiler/compile.js --input test/src/SwitchStatement.js   --output test/build/SwitchStatement.js
 
 node_modules/.bin/mocha --reporter spec "test/build/*.js"
