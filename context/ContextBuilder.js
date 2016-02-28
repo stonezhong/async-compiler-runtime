@@ -63,6 +63,9 @@ var ContextBuilder = {
     if (node.type === 'throw') {
       return ThrowStatement.buildContext(node);
     }
+    if (node.type === 'forin') {
+      return ForInStatement.buildContext(node);
+    }
 
     // TODO: remove this hack!
     if (typeof(node) === 'function') {
@@ -101,3 +104,4 @@ var ArrayExpr = require('./ArrayExpr');
 var ConditionalExpr = require('./ConditionalExpr');
 var TryStatement = require('./TryStatement');
 var ThrowStatement = require('./ThrowStatement');
+var ForInStatement = require('./ForInStatement');
